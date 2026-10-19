@@ -1,14 +1,15 @@
 /* =====================================================
    LEITURA DA PLANILHA VIA SHEETJS
+   Módulo renomeado para SheetLoader (evita conflito
+   com o FileReader nativo do navegador).
    ===================================================== */
 
-const FileReader = (() => {
+const SheetLoader = (() => {
 
   /** Tenta baixar o arquivo testando múltiplos caminhos e variações de URL */
   async function tryFetchFromPaths() {
     const erros = [];
     for (const rawPath of CONFIG.DATA_PATHS) {
-      // Testa o caminho original + versão com encoding
       const candidatos = [rawPath];
       if (rawPath.includes(' ')) candidatos.push(rawPath.replace(/ /g, '%20'));
 
@@ -82,9 +83,13 @@ const FileReader = (() => {
     return mapped;
   }
 
-  async function readBlob(blob, filename) {
+  /**
+   * Lê um Blob e devolve os dados já normalizados.
+   * Usa o FileReader NATIVO do navegador (window.FileReader).
+   */
+  function readBlob(blob, filename) {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+      const reader = new window.FileReader(); // <-- explícito no escopo global
       reader.onload = (e) => {
         try {
           const data = new Uint8Array(e.target.result);
@@ -115,8 +120,8 @@ const FileReader = (() => {
     if (found.notFound) {
       return {
         ok: false,
-        erro: 'Planilha não encontrada em dados/. Verifique se "BASE CADASTRO.xlsx" existe na pasta, ' +
-              'ou use o botão "Carregar arquivo" para enviar manualmente.',
+        erro: 'Planilha não encontrada em dados/. Verifique se o arquivo "BASE CADASTRO.xlsx" ' +
+              'está na pasta dados/ do repositório.',
         erros: found.erros
       };
     }
