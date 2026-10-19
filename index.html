@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +39,7 @@
       </a>
     </nav>
     <div class="sidebar-footer">
-      <small>v1.1 • client-side</small>
+      <small>v1.2 • client-side</small>
     </div>
   </aside>
 
@@ -68,9 +68,6 @@
 
       <div class="header-actions">
         <span class="last-update" id="lastUpdate"><i class="fa-regular fa-clock"></i> —</span>
-        <button class="btn-icon" id="themeToggle" title="Alternar tema">
-          <i class="fa-solid fa-moon"></i>
-        </button>
       </div>
     </header>
 
@@ -86,14 +83,12 @@
           </div>
         </div>
 
-        <!-- BANNER DE ERRO (oculto por padrão) -->
         <div id="loadErrorBanner" class="load-error-banner hidden">
           <i class="fa-solid fa-triangle-exclamation"></i>
           <div>
-            <strong>Não foi possível carregar a planilha automaticamente.</strong>
+            <strong>Não foi possível carregar a planilha.</strong>
             <p id="loadErrorMsg"></p>
           </div>
-          <button class="btn btn-primary" id="openUploadBtn"><i class="fa-solid fa-upload"></i> Carregar arquivo</button>
         </div>
 
         <div class="cards-grid" id="cardsGrid"></div>
@@ -131,7 +126,6 @@
           </div>
         </div>
 
-        <!-- FILTROS -->
         <div class="filters-panel" id="filtersPanel">
           <div class="filters-grid">
             <div class="filter-item">
@@ -214,7 +208,6 @@
           <div class="filter-context" id="filterContext"></div>
         </div>
 
-        <!-- BARRA DE SELEÇÃO EM MASSA -->
         <div class="bulk-bar" id="bulkBar">
           <span id="selectionCount">0 selecionados</span>
           <div class="bulk-actions">
@@ -226,7 +219,6 @@
           </div>
         </div>
 
-        <!-- TABELA -->
         <div class="table-wrapper">
           <div class="table-toolbar">
             <div class="page-size">
@@ -303,8 +295,8 @@
                   <th>SEQ PROD</th>
                   <th>DESC</th>
                   <th>CAMPO</th>
-                  <th style="background: rgba(37,99,235,.1); color: var(--primary)">1 - VAREJO</th>
-                  <th style="background: rgba(202,138,4,.15); color: var(--warning)">2 - DISTRIBUIÇÃO</th>
+                  <th style="background: rgba(37,99,235,.15); color: #93c5fd">1 - VAREJO</th>
+                  <th style="background: rgba(202,138,4,.2); color: #fcd34d">2 - DISTRIBUIÇÃO</th>
                   <th>STATUS</th>
                 </tr>
               </thead>
@@ -331,24 +323,6 @@
           <h2><i class="fa-solid fa-chart-pie"></i> Gráficos</h2>
         </div>
         <div class="dashboard-charts" id="chartsFull"></div>
-      </section>
-
-      <!-- CONFIGURAÇÕES (não está no menu; usado só como fallback de upload) -->
-      <section class="section" id="section-config">
-        <div class="section-header"><h2><i class="fa-solid fa-upload"></i> Carregar Planilha Manualmente</h2></div>
-        <div class="config-card">
-          <h3>Enviar arquivo</h3>
-          <p>Se a planilha não for encontrada automaticamente em <code>dados/BASE CADASTRO.xlsx</code>, envie o arquivo abaixo. O processamento é 100% local — nada é enviado a servidores.</p>
-          <div class="form-row">
-            <input type="file" id="manualFile" accept=".xlsx,.xls,.csv">
-            <button class="btn btn-primary" id="loadManualFile"><i class="fa-solid fa-upload"></i> Carregar arquivo</button>
-          </div>
-          <p class="hint">
-            <strong>Dica:</strong> se estiver rodando localmente, use um servidor HTTP
-            (ex: <code>python -m http.server</code> ou <code>npx serve</code>) — o navegador
-            bloqueia <code>fetch()</code> em <code>file://</code> por CORS.
-          </p>
-        </div>
       </section>
 
     </main>
