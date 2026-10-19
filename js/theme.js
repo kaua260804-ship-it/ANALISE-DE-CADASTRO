@@ -3,13 +3,10 @@
    ===================================================== */
 
 const Theme = (() => {
-  function apply(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-  }
 
   function init() {
-    // Tema escuro fixo
-    apply('dark');
+    // Aplica o tema escuro fixo no <html>
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 
   return { init };
