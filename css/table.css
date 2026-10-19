@@ -1,0 +1,240 @@
+/* =====================================================
+   TABELA PRINCIPAL
+   v1.1 — min-width ajustado para comportar coluna DIVISÃO
+   ===================================================== */
+
+.table-wrapper {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: .82rem;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.page-size { display: flex; align-items: center; gap: 6px; }
+.page-size select { width: auto; padding: 4px 8px; }
+.table-info { color: var(--text-muted); }
+
+.table-scroll {
+  overflow-x: auto;
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+  position: relative;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .82rem;
+  min-width: 1450px;
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: .7rem;
+  letter-spacing: .4px;
+  padding: 11px 10px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+}
+.data-table thead th:hover { color: var(--text); }
+.data-table thead th[data-sort]::after {
+  content: "\f0dc";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-left: 6px;
+  opacity: .3;
+  font-size: .7rem;
+}
+.data-table thead th.sort-asc::after { content: "\f0de"; opacity: 1; color: var(--primary); }
+.data-table thead th.sort-desc::after { content: "\f0dd"; opacity: 1; color: var(--primary); }
+
+/* ---------- COLUNAS FIXAS ---------- */
+.col-fixed-1 {
+  position: sticky !important;
+  left: 0;
+  z-index: 20 !important;
+  background: var(--bg-muted);
+}
+.col-fixed-2 {
+  position: sticky !important;
+  left: 90px;
+  z-index: 20 !important;
+  background: var(--bg-muted);
+  min-width: 240px;
+  max-width: 320px;
+}
+.data-table tbody .col-fixed-1 { background: var(--bg-elevated); left: 0; }
+.data-table tbody .col-fixed-2 { background: var(--bg-elevated); left: 90px; }
+.data-table tbody tr:hover .col-fixed-1,
+.data-table tbody tr:hover .col-fixed-2 { background: var(--bg-muted); }
+.data-table tbody tr.selected .col-fixed-1,
+.data-table tbody tr.selected .col-fixed-2 { background: var(--primary-light); }
+
+.data-table thead .col-check {
+  position: sticky;
+  left: 0;
+  z-index: 25;
+  background: var(--bg-muted);
+  width: 42px;
+  min-width: 42px;
+  text-align: center;
+}
+.data-table tbody td.col-check {
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  background: var(--bg-elevated);
+  text-align: center;
+  width: 42px;
+  min-width: 42px;
+}
+
+/* ---------- CÉLULAS ---------- */
+.data-table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  cursor: pointer;
+  transition: background .15s;
+}
+.data-table tbody tr:hover { background: var(--bg-muted); }
+.data-table tbody tr.selected { background: var(--primary-light); }
+
+.data-table .cell-truncate {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.data-table .col-actions {
+  width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.data-table .row-warn {
+  color: var(--warning);
+  font-size: 1rem;
+}
+
+.highlight {
+  background: #fde68a;
+  color: #78350f;
+  padding: 0 2px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+[data-theme="dark"] .highlight { background: #78350f; color: #fde68a; }
+
+.table-empty {
+  text-align: center;
+  padding: 60px 20px !important;
+  color: var(--text-muted);
+  font-size: .9rem;
+}
+
+/* ---------- PAGINAÇÃO ---------- */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+}
+.pagination button {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: .82rem;
+  transition: var(--transition);
+}
+.pagination button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.pagination button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.pagination button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------- PROBLEMAS (tooltip) ---------- */
+.problems-cell {
+  position: relative;
+  cursor: help;
+  color: var(--danger);
+  font-weight: 600;
+  display: inline-block;
+}
+.problems-cell:hover::after {
+  content: attr(data-problems);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg-elevated);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: .75rem;
+  white-space: pre-line;
+  max-width: 260px;
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  pointer-events: none;
+}
+
+/* =====================================================
+   BADGES DE DIVISÃO (V / D / ≠) — usados na coluna DIVISÃO
+   ===================================================== */
+.data-table tbody td[data-label="DIVISÃO"] .badge {
+  padding: 2px 8px;
+  font-size: .7rem;
+  min-width: 22px;
+  justify-content: center;
+}
+.data-table tbody td[data-label="DIVISÃO"] .badge + .badge {
+  margin-left: 2px;
+}
+
+/* =====================================================
+   AJUSTES FINOS PARA A COLUNA DIVISÃO E EMBALAGEM
+   ===================================================== */
+.data-table thead th[data-sort="divisao"] { min-width: 110px; }
+.data-table thead th[data-sort="embalagem"] { min-width: 140px; }
+.data-table thead th[data-sort="desc"] { min-width: 240px; }
