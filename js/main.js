@@ -1,10 +1,6 @@
 /* =====================================================
    ORQUESTRAÇÃO / INICIALIZAÇÃO
-   -----------------------------------------------------
-   DEPLOY:
-   1) Commit de todos os arquivos no repositório Git
-   2) Settings → Pages → branch main / pasta /root
-   3) Envie o arquivo dados/BASE CADASTRO.xlsx junto
+   A planilha é carregada automaticamente da pasta dados/.
    ===================================================== */
 
 const App = (() => {
@@ -25,11 +21,13 @@ const App = (() => {
   }
 
   function showLoadError(msg) {
+    if (!errorBanner) return;
     errorMsg.textContent = msg;
     errorBanner.classList.remove('hidden');
   }
 
   function hideLoadError() {
+    if (!errorBanner) return;
     errorBanner.classList.add('hidden');
   }
 
@@ -78,18 +76,17 @@ const App = (() => {
 
   async function loadAuto() {
     try {
-      showLoading('Localizando planilha em dados/...');
-      const res = await FileReader.loadAuto();
+      showLoading('Carregando planilha de dados/...');
+      const res = await SheetLoader.loadAuto();
+
       if (!res.ok) {
-        // Mostra banner na tela inicial
         hideLoading();
         showLoadError(res.erro);
-        footerStatus.textContent = 'Planilha não encontrada — use "Carregar arquivo"';
-        Toast.danger('Não foi possível carregar a planilha automaticamente');
-        // Abre a seção de upload automaticamente
-        Sidebar.navigate('config');
+        footerStatus.textContent = 'Erro ao carregar planilha';
+        Toast.danger('Não foi possível carregar a planilha');
         return;
       }
+
       showLoading('Cruzando dados e calculando auditoria...');
       await new Promise(r => setTimeout(r, 100));
       processData(res.data);
@@ -104,45 +101,17 @@ const App = (() => {
     }
   }
 
-  async function loadManual(file) {
-    try {
-      showLoading('Lendo arquivo...');
-      const raw = await FileReader.readBlob(file, file.name);
-      showLoading('Cruzando dados e calculando auditoria...');
-      await new Promise(r => setTimeout(r, 100));
-      processData(raw);
-      Toast.success(`Arquivo carregado: ${file.name} (${STATE.produtos.length} produtos únicos)`);
-      Sidebar.navigate('dashboard');
-    } catch (err) {
-      console.error(err);
-      Toast.danger('Erro ao ler arquivo: ' + err.message);
-    } finally {
-      hideLoading();
-    }
-  }
-
-  function initConfig() {
-    document.getElementById('loadManualFile').addEventListener('click', () => {
-      const f = document.getElementById('manualFile').files[0];
-      if (!f) { Toast.warning('Selecione um arquivo primeiro'); return; }
-      loadManual(f);
-    });
-
-    document.getElementById('reloadDataBtn').addEventListener('click', () => {
-      loadAuto();
-    });
-
-    document.getElementById('openUploadBtn').addEventListener('click', () => {
-      Sidebar.navigate('config');
-    });
-  }
-
   function initToggleFilters() {
     const btn = document.getElementById('toggleFilters');
     const panel = document.getElementById('filtersPanel');
-    btn.addEventListener('click', () => {
-      panel.classList.toggle('hidden');
-    });
+    if (btn && panel) {
+      btn.addEventListener('click', () => panel.classList.toggle('hidden'));
+    }
+  }
+
+  function initReload() {
+    const btn = document.getElementById('reloadDataBtn');
+    if (btn) btn.addEventListener('click', () => loadAuto());
   }
 
   async function init() {
@@ -154,14 +123,14 @@ const App = (() => {
     Drawer.init();
     Exporter.init();
     Divisoes.init();
-    initConfig();
     initToggleFilters();
+    initReload();
     updateFooter();
 
     await loadAuto();
   }
 
-  return { init, applyAllFilters, loadAuto, loadManual };
+  return { init, applyAllFilters, loadAuto };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
