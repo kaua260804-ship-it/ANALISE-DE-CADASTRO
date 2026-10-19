@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análise Cadastro | Auditoria de Produtos</title>
+  <meta name="description" content="Sistema de análise e auditoria de cadastro de produtos">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      <span>ANÁLISE<br>CADASTRO</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" data-section="dashboard" class="nav-item active">
+        <i class="fa-solid fa-house"></i><span>Início</span>
+      </a>
+      <a href="#" data-section="produtos" class="nav-item">
+        <i class="fa-solid fa-table-list"></i><span>Produtos</span>
+      </a>
+      <a href="#" data-section="divisoes" class="nav-item">
+        <i class="fa-solid fa-code-compare"></i><span>Comparar Divisões</span>
+      </a>
+      <a href="#" data-section="auditoria" class="nav-item">
+        <i class="fa-solid fa-magnifying-glass-chart"></i><span>Auditoria</span>
+      </a>
+      <a href="#" data-section="graficos" class="nav-item">
+        <i class="fa-solid fa-chart-pie"></i><span>Gráficos</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <small>v1.1 • client-side</small>
+    </div>
+  </aside>
+
+  <!-- ==================== OVERLAY MOBILE ==================== -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ==================== CONTAINER PRINCIPAL ==================== -->
+  <div class="app-main">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <button class="btn-icon mobile-menu-btn" id="mobileMenuBtn" title="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="header-title">
+        <i class="fa-solid fa-clipboard-check"></i>
+        <h1>Análise Cadastro</h1>
+      </div>
+
+      <div class="search-wrapper" id="searchWrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="globalSearch" placeholder="Buscar por código, descrição, comprador..." autocomplete="off">
+        <button class="btn-icon clear-search" id="clearSearch" title="Limpar"><i class="fa-solid fa-xmark"></i></button>
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+
+      <div class="header-actions">
+        <span class="last-update" id="lastUpdate"><i class="fa-regular fa-clock"></i> —</span>
+        <button class="btn-icon" id="themeToggle" title="Alternar tema">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== CONTEÚDO ==================== -->
+    <main class="app-content">
+
+      <!-- DASHBOARD -->
+      <section class="section active" id="section-dashboard">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-gauge-high"></i> Visão Geral</h2>
+          <div class="header-buttons">
+            <button class="btn btn-secondary" id="reloadDataBtn"><i class="fa-solid fa-rotate"></i> Recarregar dados</button>
+          </div>
+        </div>
+
+        <!-- BANNER DE ERRO (oculto por padrão) -->
+        <div id="loadErrorBanner" class="load-error-banner hidden">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>Não foi possível carregar a planilha automaticamente.</strong>
+            <p id="loadErrorMsg"></p>
+          </div>
+          <button class="btn btn-primary" id="openUploadBtn"><i class="fa-solid fa-upload"></i> Carregar arquivo</button>
+        </div>
+
+        <div class="cards-grid" id="cardsGrid"></div>
+        <div class="dashboard-charts">
+          <div class="chart-card">
+            <h3>Distribuição por Status</h3>
+            <div class="chart-container"><canvas id="chartStatus"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Top 10 Compradores</h3>
+            <div class="chart-container"><canvas id="chartBuyers"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Top 10 Categorias</h3>
+            <div class="chart-container"><canvas id="chartCategories"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Cadastros por Mês (12m)</h3>
+            <div class="chart-container"><canvas id="chartMonthly"></canvas></div>
+          </div>
+          <div class="chart-card chart-wide">
+            <h3>Status por Comprador (Top 10)</h3>
+            <div class="chart-container"><canvas id="chartStatusByBuyer"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUTOS -->
+      <section class="section" id="section-produtos">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-table-list"></i> Produtos</h2>
+          <div class="header-buttons">
+            <button class="btn btn-secondary" id="toggleFilters"><i class="fa-solid fa-filter"></i> Filtros</button>
+            <button class="btn btn-primary" id="exportAllBtn"><i class="fa-solid fa-file-excel"></i> Exportar tudo</button>
+          </div>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filters-panel" id="filtersPanel">
+          <div class="filters-grid">
+            <div class="filter-item">
+              <label>Divisão</label>
+              <select id="filterDivisaoModo">
+                <option value="">Todas</option>
+                <option value="1 - VAREJO">Somente Varejo</option>
+                <option value="2 - DISTRIBUICAO">Somente Distribuição</option>
+                <option value="__SO_VAREJO__">Só existe em Varejo</option>
+                <option value="__SO_DIST__">Só existe em Distribuição</option>
+                <option value="__DIVERGENTES__">Divergentes entre divisões</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Comprador</label>
+              <select id="filterComprador"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Categoria</label>
+              <select id="filterCategoria"><option value="">Todas</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Grupo</label>
+              <select id="filterGrupo"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Subgrupo</label>
+              <select id="filterSubgrupo"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Embalagem</label>
+              <select id="filterEmbalagem"><option value="">Todas</option></select>
+            </div>
+            <div class="filter-item">
+              <label>Status</label>
+              <select id="filterStatus">
+                <option value="">Todos</option>
+                <option value="COMPLETO">🟢 Completo</option>
+                <option value="INCOMPLETO">🟡 Incompleto</option>
+                <option value="CRITICO">🔴 Crítico</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Tem Fornecedor</label>
+              <select id="filterTemForn">
+                <option value="">Todos</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Tem Cód. Acesso</label>
+              <select id="filterTemCodAcess">
+                <option value="">Todos</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Tem Comprador</label>
+              <select id="filterTemComprador">
+                <option value="">Todos</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Data Cad. (de)</label>
+              <input type="date" id="filterDataDe">
+            </div>
+            <div class="filter-item">
+              <label>Data Cad. (até)</label>
+              <input type="date" id="filterDataAte">
+            </div>
+          </div>
+          <div class="filters-actions">
+            <button class="btn btn-secondary" id="clearFilters"><i class="fa-solid fa-eraser"></i> Limpar filtros</button>
+            <span class="results-counter" id="resultsCounter">—</span>
+          </div>
+          <div class="filter-context" id="filterContext"></div>
+        </div>
+
+        <!-- BARRA DE SELEÇÃO EM MASSA -->
+        <div class="bulk-bar" id="bulkBar">
+          <span id="selectionCount">0 selecionados</span>
+          <div class="bulk-actions">
+            <button class="btn btn-sm btn-secondary" id="selectAllFiltered"><i class="fa-solid fa-check-double"></i> Selecionar todos os <span id="filteredTotal">0</span></button>
+            <button class="btn btn-sm btn-primary" id="exportSelectedBtn" disabled><i class="fa-solid fa-file-export"></i> Exportar</button>
+            <button class="btn btn-sm btn-primary" id="copySelectedBtn" disabled><i class="fa-regular fa-copy"></i> Copiar códigos</button>
+            <button class="btn btn-sm btn-secondary" id="analyzeSelectedBtn" disabled><i class="fa-solid fa-magnifying-glass"></i> Analisar</button>
+            <button class="btn btn-sm btn-danger" id="clearSelection" disabled><i class="fa-solid fa-xmark"></i> Limpar</button>
+          </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="table-wrapper">
+          <div class="table-toolbar">
+            <div class="page-size">
+              Mostrar
+              <select id="pageSize">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+              </select>
+              por página
+            </div>
+            <div class="table-info" id="tableInfo">—</div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="data-table" id="dataTable">
+              <thead>
+                <tr>
+                  <th class="col-check"><input type="checkbox" id="selectPageCheckbox"></th>
+                  <th data-sort="seqProd" class="col-fixed-1">SEQ PROD</th>
+                  <th data-sort="desc" class="col-fixed-2">DESC</th>
+                  <th data-sort="divisao">DIVISÃO</th>
+                  <th data-sort="embalagem">EMBALAGEM</th>
+                  <th data-sort="categoria">CATEGORIA</th>
+                  <th data-sort="grupo">GRUPO</th>
+                  <th data-sort="subgrupo">SUBGRUPO</th>
+                  <th data-sort="subgrupo1">SUBGRUPO 1</th>
+                  <th data-sort="subgrupo2">SUBGRUPO 2</th>
+                  <th data-sort="comprador">COMPRADOR</th>
+                  <th data-sort="dataCad">DATA CAD</th>
+                  <th data-sort="usuario">USUÁRIO</th>
+                  <th data-sort="temForn">TEM FORN</th>
+                  <th data-sort="temCodAcess">CÓD ACESS</th>
+                  <th data-sort="status">STATUS</th>
+                  <th>PROBLEMAS</th>
+                  <th>AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr><td colspan="18" class="table-empty">Carregando dados...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </section>
+
+      <!-- COMPARAR DIVISÕES -->
+      <section class="section" id="section-divisoes">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-code-compare"></i> Comparar Divisões</h2>
+          <div class="header-buttons">
+            <button class="btn btn-secondary" id="exportDivergencesBtn"><i class="fa-solid fa-file-excel"></i> Exportar divergências</button>
+          </div>
+        </div>
+        <div class="divisoes-summary" id="divisoesSummary"></div>
+        <div class="table-wrapper">
+          <div class="table-toolbar">
+            <div class="page-size">
+              <select id="divisoesFiltro">
+                <option value="">Todos os produtos</option>
+                <option value="divergentes">Apenas divergentes</option>
+                <option value="so_varejo">Só em Varejo</option>
+                <option value="so_dist">Só em Distribuição</option>
+              </select>
+            </div>
+            <div class="table-info" id="divisoesInfo">—</div>
+          </div>
+          <div class="table-scroll" style="max-height: calc(100vh - 280px)">
+            <table class="data-table compara-table">
+              <thead>
+                <tr>
+                  <th>SEQ PROD</th>
+                  <th>DESC</th>
+                  <th>CAMPO</th>
+                  <th style="background: rgba(37,99,235,.1); color: var(--primary)">1 - VAREJO</th>
+                  <th style="background: rgba(202,138,4,.15); color: var(--warning)">2 - DISTRIBUIÇÃO</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="divisoesBody">
+                <tr><td colspan="6" class="table-empty">Carregando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- AUDITORIA -->
+      <section class="section" id="section-auditoria">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Auditoria de Cadastro</h2>
+          <button class="btn btn-primary" id="exportInconsistBtn"><i class="fa-solid fa-file-excel"></i> Relatório de Inconsistências</button>
+        </div>
+        <div class="audit-grid" id="auditGrid"></div>
+      </section>
+
+      <!-- GRÁFICOS -->
+      <section class="section" id="section-graficos">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-chart-pie"></i> Gráficos</h2>
+        </div>
+        <div class="dashboard-charts" id="chartsFull"></div>
+      </section>
+
+      <!-- CONFIGURAÇÕES (não está no menu; usado só como fallback de upload) -->
+      <section class="section" id="section-config">
+        <div class="section-header"><h2><i class="fa-solid fa-upload"></i> Carregar Planilha Manualmente</h2></div>
+        <div class="config-card">
+          <h3>Enviar arquivo</h3>
+          <p>Se a planilha não for encontrada automaticamente em <code>dados/BASE CADASTRO.xlsx</code>, envie o arquivo abaixo. O processamento é 100% local — nada é enviado a servidores.</p>
+          <div class="form-row">
+            <input type="file" id="manualFile" accept=".xlsx,.xls,.csv">
+            <button class="btn btn-primary" id="loadManualFile"><i class="fa-solid fa-upload"></i> Carregar arquivo</button>
+          </div>
+          <p class="hint">
+            <strong>Dica:</strong> se estiver rodando localmente, use um servidor HTTP
+            (ex: <code>python -m http.server</code> ou <code>npx serve</code>) — o navegador
+            bloqueia <code>fetch()</code> em <code>file://</code> por CORS.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER STATUS -->
+    <footer class="app-footer">
+      <span id="footerStatus">Aguardando dados...</span>
+    </footer>
+  </div>
+
+  <!-- ==================== DRAWER ==================== -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div>
+        <h3 id="drawerTitle">—</h3>
+        <p id="drawerSubtitle">—</p>
+      </div>
+      <button class="btn-icon" id="closeDrawer"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+  <!-- ==================== TOASTS ==================== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==================== LOADING ==================== -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p id="loadingText">Processando...</p>
+  </div>
+
+  <!-- ==================== CDNs ==================== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ==================== MÓDULOS ==================== -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/fileReader.js"></script>
+  <script src="js/dataProcessor.js"></script>
+  <script src="js/searchEngine.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/drawer.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/divisoes.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
